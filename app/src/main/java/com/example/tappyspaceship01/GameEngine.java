@@ -36,7 +36,6 @@ public class GameEngine extends SurfaceView implements Runnable {
     Paint paintbrush;
 
 
-
     // -----------------------------------
     // GAME SPECIFIC VARIABLES
     // -----------------------------------
@@ -45,13 +44,18 @@ public class GameEngine extends SurfaceView implements Runnable {
     // ## SPRITES
     // ----------------------------
 
-    // represents the top left corner of your player
+    // represent the TOP LEFT CORNER OF THE GRAPHIC
     int playerXPosition;
     int playerYPosition;
+    Bitmap playerImage;
+
+
 
     int enemyXPosition;
     int enemyYPosition;
 
+
+    Rect playerHitbox;
 
     // ----------------------------
     // ## GAME STATS
@@ -70,18 +74,26 @@ public class GameEngine extends SurfaceView implements Runnable {
 
         this.printScreenInfo();
 
-        this.printScreenInfo();
-
         // @TODO: Add your sprites
-               // @TODO: Any other game setup
 
-                        // put initial starting postion of enemy
-                                this.enemyXPosition = 1300;
-                this.enemyYPosition = 120;
+        // put initial starting postion of enemy
+        this.enemyXPosition = 1300;
+        this.enemyYPosition = 120;
 
-                        // put the initial starting position of your player
-                                this.playerXPosition = 100;
-               this.playerYPosition = 120;
+        // put the initial starting position of your player
+
+        this.playerImage = BitmapFactory.decodeResource(this.getContext().getResources(),
+                R.drawable.player_ship);
+        this.playerXPosition = 100;
+        this.playerYPosition = 600;
+
+        this.playerHitbox = new Rect(100,
+                600,
+                100+playerImage.getWidth(),
+                600+playerImage.getHeight()
+        );
+
+
     }
 
 
@@ -137,9 +149,29 @@ public class GameEngine extends SurfaceView implements Runnable {
 
 
     public void updatePositions() {
-        // @TODO: Update position of player based onn mouse tap
-        // if mousedown,
+        // @TODO: Update position of player based on mouse tap
+        if (this.fingerAction == "mousedown") {
+            // if mousedown, then move player up
+            // Make the UP movement > than down movement - this will
+            // make it look like the player is moving up alot
+            this.playerYPosition = this.playerYPosition - 100;
+        }
 
+        if (this.fingerAction == "mouseup") {
+            // if mouseup, then move player down
+            this.playerYPosition = this.playerYPosition + 10;
+        }
+
+        // MAKE ENEMY MOVE
+        // - enemy moves left forever
+        // - when enemy touches LEFT wall, respawn on RIGHT SIDE
+        this.enemyXPosition = this.enemyXPosition - 25;
+
+        if (this.enemyXPosition <= 0) {
+            // restart the enemy in the starting position
+            this.enemyXPosition = 1300;
+            this.enemyYPosition = 120;
+        }
 
 
     }
@@ -161,19 +193,16 @@ public class GameEngine extends SurfaceView implements Runnable {
             paintbrush.setColor(Color.BLUE);
             paintbrush.setStyle(Paint.Style.STROKE);
             paintbrush.setStrokeWidth(5);
-        // draw player graphic on the screen
+
+
             // draw player graphic on screen
-            Bitmap playerImage = BitmapFactory.decodeResource(this.getContext().getResources(),
-                    R.drawable.player_ship);
-                       canvas.drawBitmap(playerImage, 100, 120, paintbrush);
-                        canvas.drawBitmap(playerImage, playerXPosition, playerYPosition, paintbrush);
+
+            canvas.drawBitmap(playerImage, playerXPosition, playerYPosition, paintbrush);
 
             // draw the enemy graphic on the screen
             Bitmap ememyImage = BitmapFactory.decodeResource(this.getContext().getResources(),
                     R.drawable.alien_ship2);
-                        canvas.drawBitmap(ememyImage, 1300, 120, paintbrush);
-                        canvas.drawBitmap(ememyImage, enemyXPosition, enemyYPosition, paintbrush);
-
+            canvas.drawBitmap(ememyImage, enemyXPosition, enemyYPosition, paintbrush);
 
 
             //----------------
@@ -193,26 +222,33 @@ public class GameEngine extends SurfaceView implements Runnable {
     // ------------------------------
     // USER INPUT FUNCTIONS
     // ------------------------------
+
+
     String fingerAction = "";
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int userAction = event.getActionMasked();
         //@TODO: What should happen when person touches the screen?
+        // Answer - PRESS DOWN ON SCREEN --> PLAYER MOVES UP
+        // RELEASE FINGER --> PLAYER MOVES DOWN
         if (userAction == MotionEvent.ACTION_DOWN) {
             Log.d(TAG, "Person tapped the screen");
-            // user is pressing , so move the player up
-
+            // User is pressing down, so move player up
             fingerAction = "mousedown";
-
-
         }
         else if (userAction == MotionEvent.ACTION_UP) {
             Log.d(TAG, "Person lifted finger");
-            // user has released the finger, so move the player down
+            // User has released finger, so move player down
             fingerAction = "mouseup";
-
         }
+ // make enemy move
+        // enemy moves left corner
+        //
+        this.enemyXPosition = this.enemyXPosition - 25;
 
+        // move the hitbox
+        this.
         return true;
     }
 }
